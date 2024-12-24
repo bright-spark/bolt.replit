@@ -49,40 +49,45 @@ export function useGit() {
       }
 
       fileData.current = {};
-      await git.clone({
-        fs,
-        http,
-        dir: webcontainer.workdir,
-        url,
-        depth: 1,
-        singleBranch: true,
-        corsProxy: 'https://cors.isomorphic-git.org',
-        onAuth: (url) => {
-          // let domain=url.split("/")[2]
 
-          let auth = lookupSavedPassword(url);
+      try {
+        await git.clone({
+          fs,
+          http,
+          dir: webcontainer.workdir,
+          url,
+          depth: 1,
+          singleBranch: true,
+          corsProxy: 'https://cors.isomorphic-git.org',
+          onAuth: (url) => {
+            let auth = lookupSavedPassword(url);
 
-          if (auth) {
-            return auth;
-          }
+            if (auth) {
+              return auth;
+            }
 
-          if (confirm('This repo is password protected. Ready to enter a username & password?')) {
-            auth = {
-              username: prompt('Enter username'),
-              password: prompt('Enter password'),
-            };
-            return auth;
-          } else {
-            return { cancel: true };
-          }
-        },
-        onAuthFailure: (url, _auth) => {
-          toast.error(`Error Authenticating with ${url.split('/')[2]}`);
-        },
-        onAuthSuccess: (url, auth) => {
-          saveGitAuth(url, auth);
-        },
-      });
+            if (confirm('This repo is password protected. Ready to enter a username & password?')) {
+              auth = {
+                username: prompt('Enter username'),
+                password: prompt('Enter password'),
+              };
+              return auth;
+            } else {
+              return { cancel: true };
+            }
+          },
+          onAuthFailure: (url, _auth) => {
+            toast.error(`Authentication failed for ${url.split('/')[2]}. Please check your credentials.`);
+          },
+          onAuthSuccess: (url, auth) => {
+            saveGitAuth(url, auth);
+          },
+        });
+      } catch (error: any) {
+        toast.error(`Git clone failed: ${error.message}`);
+        console.error('Git clone error:', error);
+        throw error; // Re-throw the error to be handled by the calling function
+      }
 
       const data: Record<string, { data: any; encoding?: string }> = {};
 

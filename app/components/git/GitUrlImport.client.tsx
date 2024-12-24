@@ -114,7 +114,9 @@ ${file.content}
 
     importRepo(url).catch((error) => {
       console.error('Error importing repo:', error);
-      toast.error('Failed to import repository');
+      toast.error(
+        `Failed to import repository: ${error.message || 'Unknown error, please check repository permissions'}`,
+      );
       setLoading(false);
       window.location.href = '/';
     });

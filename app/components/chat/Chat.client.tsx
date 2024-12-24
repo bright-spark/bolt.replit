@@ -343,11 +343,15 @@ export const ChatImpl = memo(
     const [messageRef, scrollRef] = useSnapScroll();
 
     useEffect(() => {
-      const storedApiKeys = Cookies.get('apiKeys');
+      // API keys will be loaded from environment variables
+      const envApiKeys = {
+        OpenAI: process.env.OPENAI_API_KEY || '',
+        Anthropic: process.env.ANTHROPIC_API_KEY || '',
+        Google: process.env.GOOGLE_API_KEY || '',
 
-      if (storedApiKeys) {
-        setApiKeys(JSON.parse(storedApiKeys));
-      }
+        // Add other providers as needed
+      };
+      setApiKeys(envApiKeys);
     }, []);
 
     const handleModelChange = (newModel: string) => {

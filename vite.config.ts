@@ -19,6 +19,11 @@ const getGitHash = () => {
 
 export default defineConfig((config) => {
   return {
+    server: {
+      host: '0.0.0.0',
+      strictPort: true,
+      port: 3000
+    },
     define: {
       __COMMIT_HASH: JSON.stringify(getGitHash()),
       __APP_VERSION: JSON.stringify(process.env.npm_package_version),
